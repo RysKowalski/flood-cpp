@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Grid.hpp"
+#include <cstdint>
 
 class FloodSim {
 public:
@@ -10,5 +11,7 @@ public:
 private:
   int width;
   int height;
-  Grid grid;
+  Grid current;
+  Grid next;
+  std::vector<std::uint8_t> pixels;
 };
