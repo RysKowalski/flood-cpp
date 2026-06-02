@@ -87,7 +87,7 @@ int main() {
   std::vector<std::uint8_t> pixels(static_cast<std::size_t>(grid_width) *
                                    grid_height * 4);
 
-  sf::Texture texture({grid_width, grid_height});
+  sf::Texture texture(sf::Vector2u{grid_width, grid_height});
   sf::Sprite sprite(texture);
 
   int ticks{0};
