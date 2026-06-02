@@ -1,10 +1,14 @@
 #pragma once
 
+#include "Grid.hpp"
+
 class FloodSim {
 public:
-  FloodSim(const int a);
-  void show() const;
+  FloodSim(int width, int height);
+  void tick() const;
 
 private:
-  int a;
+  int width;
+  int height;
+  Grid grid;
 };

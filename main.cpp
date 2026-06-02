@@ -74,15 +74,16 @@ int main() {
   constexpr unsigned grid_width{1500};
   constexpr unsigned grid_height{1500};
 
-  sf::RenderWindow window(sf::VideoMode({1200, 800}), "Game of Life 1500x1500");
+  sf::RenderWindow window(sf::VideoMode({1500, 1500}),
+                          "Game of Life 1500x1500");
 
   window.setFramerateLimit(60);
 
   GameOfLife game(grid_width, grid_height);
   game.randomize();
 
-  FloodSim fsim(12);
-  fsim.show();
+  FloodSim fsim(100, 100);
+  fsim.tick();
 
   std::vector<std::uint8_t> pixels(static_cast<std::size_t>(grid_width) *
                                    grid_height * 4);
