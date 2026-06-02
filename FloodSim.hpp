@@ -1,5 +1,4 @@
-#ifndef PERSON_HPP
-#define PERSON_HPP
+#pragma once
 
 class FloodSim {
 public:
@@ -9,5 +8,3 @@ public:
 private:
   int a;
 };
-
-#endif
