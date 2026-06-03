@@ -7,12 +7,12 @@ class FloodSim {
 public:
   FloodSim(int width, int height);
   void tick();
+  std::vector<std::uint8_t> pixels();
 
 private:
   int width;
   int height;
   Grid current;
   Grid next;
-  std::vector<std::uint8_t> pixels;
   bool floodable(int x, int y) const;
 };
