@@ -16,6 +16,7 @@ public:
 
   Cell &at(std::size_t x, std::size_t y);
   const Cell &at(std::size_t x, std::size_t y) const;
+  void clear();
 
   std::size_t width() const;
   std::size_t height() const;
