@@ -6,7 +6,7 @@
 class FloodSim {
 public:
   FloodSim(int width, int height);
-  void tick() const;
+  void tick();
 
 private:
   int width;
@@ -14,5 +14,5 @@ private:
   Grid current;
   Grid next;
   std::vector<std::uint8_t> pixels;
-  bool floodable(int x, int y);
+  bool floodable(int x, int y) const;
 };
