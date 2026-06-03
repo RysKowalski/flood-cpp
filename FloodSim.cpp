@@ -1,11 +1,22 @@
 #include "FloodSim.hpp"
 #include "Grid.hpp"
-#include <iostream>
 
 FloodSim::FloodSim(const int width, const int height)
-    : width(width), height(height), grid(width, height) {}
+    : width(width), height(height), current(width, height),
+      next(width, height) {}
 
 void FloodSim::tick() const {
-  std::cout << "value: " << height << " " << width << std::endl;
-  std::cout << grid.height() << " " << grid.width() << std::endl;
+  for (int x{0}; x < width; x++) {
+    for (int y{0}; y < height; y++) {
+      if (floodable(x, y)) {
+      }
+    }
+  }
+}
+
+bool FloodSim::floodable(int x, int y) {
+  if (current.at(x, y).type == CellType::NOTHING) {
+    return true;
+  }
+  return false;
 }

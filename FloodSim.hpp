@@ -14,4 +14,5 @@ private:
   Grid current;
   Grid next;
   std::vector<std::uint8_t> pixels;
+  bool floodable(int x, int y);
 };
