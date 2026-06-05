@@ -60,9 +60,7 @@ void FloodSim::tick() {
       {0, 1},
   }};
 
-  // separate accumulation buffer
-  auto delta = next;
-  delta.clear();
+  next.clear();
 
   for (int x = 0; x < width; ++x) {
     for (int y = 0; y < height; ++y) {
@@ -87,24 +85,22 @@ void FloodSim::tick() {
 
         const double flow = k * (n_value - c_value);
 
-        delta.at(x, y).value += flow;
-        delta.at(nx, ny).value -= flow;
+        next.at(x, y).value += flow;
+        next.at(nx, ny).value -= flow;
       }
     }
   }
 
-  // apply update once (synchronous step)
   for (int x = 0; x < width; ++x) {
     for (int y = 0; y < height; ++y) {
       if (!floodable(x, y)) {
         continue;
       }
 
-      current.at(x, y).value += delta.at(x, y).value;
+      current.at(x, y).value += next.at(x, y).value;
     }
   }
 
-  // injection (kept as in original, but applied to current state)
   current.at(50, 50).value += 20.0;
 
   update_pixels();
@@ -120,17 +116,54 @@ bool FloodSim::floodable(int x, int y) const {
 }
 
 void FloodSim::update_pixels() {
-
   for (int x{0}; x < width; x++) {
     for (int y{0}; y < height; y++) {
       const std::size_t i = (y * width + x) * 4;
-      std::uint8_t blue = static_cast<std::uint8_t>(
-          255 * std::clamp(current.at(x, y).value / 5.0, 0.0, 1.0));
+      double &val = current.at(x, y).value;
 
-      pixels[i + 0] = 0;    // R
-      pixels[i + 1] = 0;    // G
-      pixels[i + 2] = blue; // B
-      pixels[i + 3] = 255;  // A
+      if (val < 1) {
+        pixels[i + 0] = 0;   // R
+        pixels[i + 1] = 0;   // G
+        pixels[i + 2] = 0;   // B
+        pixels[i + 3] = 255; // A
+        continue;
+      } else if (val < 10) {
+        pixels[i + 0] = 177; // R
+        pixels[i + 1] = 198; // G
+        pixels[i + 2] = 209; // B
+        pixels[i + 3] = 255; // A
+        continue;
+      } else if (val < 25) {
+        pixels[i + 0] = 138; // R
+        pixels[i + 1] = 163; // G
+        pixels[i + 2] = 244; // B
+        pixels[i + 3] = 255; // A
+        continue;
+      } else if (val < 75) {
+        pixels[i + 0] = 128; // R
+        pixels[i + 1] = 117; // G
+        pixels[i + 2] = 165; // B
+        pixels[i + 3] = 255; // A
+        continue;
+      } else if (val < 150) {
+        pixels[i + 0] = 239; // R
+        pixels[i + 1] = 201; // G
+        pixels[i + 2] = 152; // B
+        pixels[i + 3] = 255; // A
+        continue;
+      } else if (val < 250) {
+        pixels[i + 0] = 203; // R
+        pixels[i + 1] = 216; // G
+        pixels[i + 2] = 126; // B
+        pixels[i + 3] = 255; // A
+        continue;
+      } else {
+        pixels[i + 0] = 80;  // R
+        pixels[i + 1] = 71;  // G
+        pixels[i + 2] = 123; // B
+        pixels[i + 3] = 255; // A
+        continue;
+      }
     }
   }
 }
