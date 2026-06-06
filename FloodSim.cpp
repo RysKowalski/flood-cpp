@@ -1,54 +1,11 @@
 #include "FloodSim.hpp"
 #include "Grid.hpp"
-#include <algorithm>
 #include <array>
-#include <cstdint>
-#include <iostream>
 
 FloodSim::FloodSim(const int width, const int height)
     : width(width), height(height), current(width, height), next(width, height),
       pixels(static_cast<std::size_t>(width) *
              static_cast<std::size_t>(height) * 4) {}
-
-// void FloodSim::tick() {
-//   constexpr double k{0.1};
-//   constexpr std::array<std::pair<int, int>, 4> directions{{
-//       {-1, 0},
-//       {1, 0},
-//       {0, -1},
-//       {0, 1},
-//   }};
-//
-//   for (int x{0}; x < width; x++) {
-//     for (int y{0}; y < height; y++) {
-//       if (not floodable(x, y))
-//         continue;
-//
-//       double &c_value = current.at(x, y).value;
-//       if (c_value <= 0) {
-//         continue;
-//       }
-//
-//       for (const auto &[dx, dy] : directions) {
-//         int nx{x + dx};
-//         int ny{y + dy};
-//
-//         if (not floodable(nx, ny))
-//           continue;
-//
-//         double delta{current.at(nx, ny).value - c_value};
-//         double flow{k * delta};
-//
-//         next.at(x, y).value += flow;
-//         next.at(nx, ny).value -= flow;
-//       }
-//     }
-//   }
-//   next.at(50, 50).value += 4;
-//   std::swap(current, next);
-//   next.clear();
-//   update_pixels();
-// }
 
 void FloodSim::tick() {
   constexpr double k{0.1};
@@ -101,7 +58,8 @@ void FloodSim::tick() {
     }
   }
 
-  current.at(50, 50).value += 20.0;
+  current.at(50, 50).value += 1.0;
+  current.at(50, 50).value *= 1.1 * 1.1;
 
   update_pixels();
 }
