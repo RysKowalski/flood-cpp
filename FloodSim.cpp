@@ -8,6 +8,27 @@ FloodSim::FloodSim(const int width, const int height)
              static_cast<std::size_t>(height) * 4) {}
 
 void FloodSim::tick() {
+
+  next.clear();
+
+  for (int x = 0; x < width; ++x) {
+    for (int y = 0; y < height; ++y) {
+      process_cell(x, y);
+    }
+  }
+
+  for (int x = 0; x < width; ++x) {
+    for (int y = 0; y < height; ++y) {
+      current.at(x, y).value += next.at(x, y).value;
+    }
+  }
+
+  current.at(50, 50).value += 50;
+
+  update_pixels();
+}
+
+void FloodSim::process_cell(int x, int y) {
   constexpr double k{0.1};
 
   constexpr std::array<std::pair<int, int>, 4> directions{{
@@ -17,51 +38,30 @@ void FloodSim::tick() {
       {0, 1},
   }};
 
-  next.clear();
-
-  for (int x = 0; x < width; ++x) {
-    for (int y = 0; y < height; ++y) {
-      if (!floodable(x, y)) {
-        continue;
-      }
-
-      const double c_value = current.at(x, y).value;
-      if (c_value <= 0.0) {
-        continue;
-      }
-
-      for (const auto &[dx, dy] : directions) {
-        const int nx = x + dx;
-        const int ny = y + dy;
-
-        if (!floodable(nx, ny)) {
-          continue;
-        }
-
-        const double n_value = current.at(nx, ny).value;
-
-        const double flow = k * (n_value - c_value);
-
-        next.at(x, y).value += flow;
-        next.at(nx, ny).value -= flow;
-      }
-    }
+  if (!floodable(x, y)) {
+    return;
   }
 
-  for (int x = 0; x < width; ++x) {
-    for (int y = 0; y < height; ++y) {
-      if (!floodable(x, y)) {
-        continue;
-      }
-
-      current.at(x, y).value += next.at(x, y).value;
-    }
+  const double c_value = current.at(x, y).value;
+  if (c_value <= 0.0) {
+    return;
   }
 
-  current.at(50, 50).value += 1.0;
-  current.at(50, 50).value *= 1.1 * 1.1;
+  for (const auto &[dx, dy] : directions) {
+    const int nx = x + dx;
+    const int ny = y + dy;
 
-  update_pixels();
+    if (!floodable(nx, ny)) {
+      return;
+    }
+
+    const double n_value = current.at(nx, ny).value;
+
+    const double flow = k * (n_value - c_value);
+
+    next.at(x, y).value += flow;
+    next.at(nx, ny).value -= flow;
+  }
 }
 
 bool FloodSim::floodable(int x, int y) const {
@@ -76,52 +76,74 @@ bool FloodSim::floodable(int x, int y) const {
 void FloodSim::update_pixels() {
   for (int x{0}; x < width; x++) {
     for (int y{0}; y < height; y++) {
-      const std::size_t i = (y * width + x) * 4;
-      double &val = current.at(x, y).value;
-
-      if (val < 1) {
-        pixels[i + 0] = 0;   // R
-        pixels[i + 1] = 0;   // G
-        pixels[i + 2] = 0;   // B
-        pixels[i + 3] = 255; // A
-        continue;
-      } else if (val < 10) {
-        pixels[i + 0] = 177; // R
-        pixels[i + 1] = 198; // G
-        pixels[i + 2] = 209; // B
-        pixels[i + 3] = 255; // A
-        continue;
-      } else if (val < 25) {
-        pixels[i + 0] = 138; // R
-        pixels[i + 1] = 163; // G
-        pixels[i + 2] = 244; // B
-        pixels[i + 3] = 255; // A
-        continue;
-      } else if (val < 75) {
-        pixels[i + 0] = 128; // R
-        pixels[i + 1] = 117; // G
-        pixels[i + 2] = 165; // B
-        pixels[i + 3] = 255; // A
-        continue;
-      } else if (val < 150) {
-        pixels[i + 0] = 239; // R
-        pixels[i + 1] = 201; // G
-        pixels[i + 2] = 152; // B
-        pixels[i + 3] = 255; // A
-        continue;
-      } else if (val < 250) {
-        pixels[i + 0] = 203; // R
-        pixels[i + 1] = 216; // G
-        pixels[i + 2] = 126; // B
-        pixels[i + 3] = 255; // A
-        continue;
-      } else {
-        pixels[i + 0] = 80;  // R
-        pixels[i + 1] = 71;  // G
-        pixels[i + 2] = 123; // B
-        pixels[i + 3] = 255; // A
-        continue;
-      }
+      update_pixel(x, y);
     }
+  }
+}
+
+void FloodSim::update_pixel(int x, int y) {
+  const std::size_t i = (y * width + x) * 4;
+
+  CellType &ctype = current.at(x, y).type;
+
+  if (ctype == CellType::NOTHING) {
+
+    double &val = current.at(x, y).value;
+
+    if (val < 1) {
+      pixels[i + 0] = 0;   // R
+      pixels[i + 1] = 0;   // G
+      pixels[i + 2] = 0;   // B
+      pixels[i + 3] = 255; // A
+      return;
+    } else if (val < 10) {
+      pixels[i + 0] = 177; // R
+      pixels[i + 1] = 198; // G
+      pixels[i + 2] = 209; // B
+      pixels[i + 3] = 255; // A
+      return;
+    } else if (val < 25) {
+      pixels[i + 0] = 138; // R
+      pixels[i + 1] = 163; // G
+      pixels[i + 2] = 244; // B
+      pixels[i + 3] = 255; // A
+      return;
+    } else if (val < 75) {
+      pixels[i + 0] = 128; // R
+      pixels[i + 1] = 117; // G
+      pixels[i + 2] = 165; // B
+      pixels[i + 3] = 255; // A
+      return;
+    } else if (val < 150) {
+      pixels[i + 0] = 239; // R
+      pixels[i + 1] = 201; // G
+      pixels[i + 2] = 152; // B
+      pixels[i + 3] = 255; // A
+      return;
+    } else if (val < 250) {
+      pixels[i + 0] = 203; // R
+      pixels[i + 1] = 216; // G
+      pixels[i + 2] = 126; // B
+      pixels[i + 3] = 255; // A
+      return;
+    } else {
+      pixels[i + 0] = 80;  // R
+      pixels[i + 1] = 71;  // G
+      pixels[i + 2] = 123; // B
+      pixels[i + 3] = 255; // A
+      return;
+    }
+  } else if (ctype == CellType::WALL) {
+    pixels[i + 0] = 255; // R
+    pixels[i + 1] = 255; // G
+    pixels[i + 2] = 0;   // B
+    pixels[i + 3] = 255; // A
+    return;
+  } else if (ctype == CellType::GENERATOR) {
+    pixels[i + 0] = 255; // R
+    pixels[i + 1] = 255; // G
+    pixels[i + 2] = 255; // B
+    pixels[i + 3] = 255; // A
+    return;
   }
 }

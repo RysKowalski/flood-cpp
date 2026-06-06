@@ -16,4 +16,6 @@ private:
   Grid next;
   bool floodable(int x, int y) const;
   void update_pixels();
+  void update_pixel(int x, int y);
+  void process_cell(int x, int y);
 };
