@@ -23,12 +23,39 @@ void FloodSim::tick() {
     }
   }
 
-  current.at(50, 50).value += 50;
-
   update_pixels();
 }
 
 void FloodSim::process_cell(int x, int y) {
+  if (floodable(x, y)) {
+    flood_cell(x, y);
+  }
+
+  switch (current.at(x, y).type) {
+  case CellType::GENERATOR: {
+    next.at(x, y).value += 30;
+    break;
+  }
+
+  case CellType::VOID: {
+    next.at(x, y).value = 0;
+    break;
+  }
+
+  default: {
+  }
+  }
+}
+
+bool FloodSim::floodable(int x, int y) const {
+  if (x < 0 || x > width - 1 || y < 0 || y > height - 1)
+    return false;
+
+  const auto type = current.at(x, y).type;
+  return type == CellType::NOTHING || type == CellType::GENERATOR;
+}
+
+void FloodSim::flood_cell(int x, int y) {
   constexpr double k{0.1};
 
   constexpr std::array<std::pair<int, int>, 4> directions{{
@@ -37,10 +64,6 @@ void FloodSim::process_cell(int x, int y) {
       {0, -1},
       {0, 1},
   }};
-
-  if (!floodable(x, y)) {
-    return;
-  }
 
   const double c_value = current.at(x, y).value;
   if (c_value <= 0.0) {
@@ -62,15 +85,6 @@ void FloodSim::process_cell(int x, int y) {
     next.at(x, y).value += flow;
     next.at(nx, ny).value -= flow;
   }
-}
-
-bool FloodSim::floodable(int x, int y) const {
-  if (x < 0 || x > width - 1 || y < 0 || y > height - 1)
-    return false;
-  if (current.at(x, y).type == CellType::NOTHING) {
-    return true;
-  }
-  return false;
 }
 
 void FloodSim::update_pixels() {
@@ -146,4 +160,28 @@ void FloodSim::update_pixel(int x, int y) {
     pixels[i + 3] = 255; // A
     return;
   }
+}
+
+void FloodSim::place_wall(int x, int y) {
+  current.at(x, y).type = CellType::WALL;
+}
+
+void FloodSim::place_generator(int x, int y, double power) {
+  current.at(x, y).type = CellType::GENERATOR;
+}
+
+void FloodSim::place_nothing(int x, int y) {
+  current.at(x, y).type = CellType::NOTHING;
+}
+
+void FloodSim::place_void(int x, int y) {
+  current.at(x, y).type = CellType::VOID;
+}
+
+void FloodSim::set_flood_value(int x, int y, double value) {
+  current.at(x, y).value = value;
+}
+
+void FloodSim::change_flood_value(int x, int y, double difference) {
+  current.at(x, y).value += difference;
 }

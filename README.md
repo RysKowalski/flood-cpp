@@ -1,7 +1,6 @@
 # TODO
 
 - required
-  - handling walls and generators
   - multithreading for simulation
   - loading from mindustry's .msav file
   - pausing/resuming simulation
