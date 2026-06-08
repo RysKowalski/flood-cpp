@@ -19,6 +19,7 @@ void FloodSim::tick() {
 
   for (int x = 0; x < width; ++x) {
     for (int y = 0; y < height; ++y) {
+      process_special_cell(x, y);
       current.at(x, y).value += next.at(x, y).value;
     }
   }
@@ -30,7 +31,18 @@ void FloodSim::process_cell(int x, int y) {
   if (floodable(x, y)) {
     flood_cell(x, y);
   }
+}
 
+bool FloodSim::floodable(int x, int y) const {
+  if (x < 0 || x > width - 1 || y < 0 || y > height - 1)
+    return false;
+
+  const auto type = current.at(x, y).type;
+  return type == CellType::NOTHING || type == CellType::GENERATOR ||
+         type == CellType::VOID;
+}
+
+void FloodSim::process_special_cell(int x, int y) {
   switch (current.at(x, y).type) {
   case CellType::GENERATOR: {
     next.at(x, y).value += 30;
@@ -45,14 +57,6 @@ void FloodSim::process_cell(int x, int y) {
   default: {
   }
   }
-}
-
-bool FloodSim::floodable(int x, int y) const {
-  if (x < 0 || x > width - 1 || y < 0 || y > height - 1)
-    return false;
-
-  const auto type = current.at(x, y).type;
-  return type == CellType::NOTHING || type == CellType::GENERATOR;
 }
 
 void FloodSim::flood_cell(int x, int y) {
@@ -75,7 +79,7 @@ void FloodSim::flood_cell(int x, int y) {
     const int ny = y + dy;
 
     if (!floodable(nx, ny)) {
-      return;
+      continue;
     }
 
     const double n_value = current.at(nx, ny).value;
@@ -157,6 +161,12 @@ void FloodSim::update_pixel(int x, int y) {
     pixels[i + 0] = 255; // R
     pixels[i + 1] = 255; // G
     pixels[i + 2] = 255; // B
+    pixels[i + 3] = 255; // A
+    return;
+  } else if (ctype == CellType::VOID) {
+    pixels[i + 0] = 255; // R
+    pixels[i + 1] = 0;   // G
+    pixels[i + 2] = 0;   // B
     pixels[i + 3] = 255; // A
     return;
   }

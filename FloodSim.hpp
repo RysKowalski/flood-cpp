@@ -22,6 +22,7 @@ private:
   Grid current;
   Grid next;
   void flood_cell(int x, int y);
+  void process_special_cell(int x, int y);
   bool floodable(int x, int y) const;
   void update_pixels();
   void update_pixel(int x, int y);

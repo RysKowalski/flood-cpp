@@ -13,7 +13,12 @@ int main() {
   window.setFramerateLimit(60);
 
   FloodSim fsim(grid_width, grid_height);
-  fsim.place_generator(50, 50, 1.0);
+  fsim.place_generator(0, 0, 1.0);
+
+  fsim.set_flood_value(25, 35, 100000);
+
+  for (int i; i < 50; i++)
+    fsim.place_generator(20, i, 1.0);
 
   sf::Texture texture(sf::Vector2u{grid_width, grid_height});
   sf::Sprite sprite(texture);
