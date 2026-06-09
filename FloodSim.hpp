@@ -21,6 +21,8 @@ private:
   int height;
   Grid current;
   Grid next;
+  std::vector<GeneratorData> generatorData;
+
   void flood_cell(int x, int y);
   void process_special_cell(int x, int y);
   bool floodable(int x, int y) const;

@@ -43,9 +43,10 @@ bool FloodSim::floodable(int x, int y) const {
 }
 
 void FloodSim::process_special_cell(int x, int y) {
-  switch (current.at(x, y).type) {
+  Cell &cell = current.at(x, y);
+  switch (cell.type) {
   case CellType::GENERATOR: {
-    next.at(x, y).value += 30;
+    next.at(x, y).value += generatorData[cell.generator_index].power;
     break;
   }
 
@@ -177,7 +178,12 @@ void FloodSim::place_wall(int x, int y) {
 }
 
 void FloodSim::place_generator(int x, int y, double power) {
-  current.at(x, y).type = CellType::GENERATOR;
+  Cell &cell = current.at(x, y);
+  cell.type = CellType::GENERATOR;
+  GeneratorData data;
+  data.power = power;
+  cell.generator_index = static_cast<std::uint32_t>(generatorData.size());
+  generatorData.push_back(data);
 }
 
 void FloodSim::place_nothing(int x, int y) {

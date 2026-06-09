@@ -5,25 +5,23 @@
 #include "FloodSim.hpp"
 
 int main() {
-  constexpr unsigned grid_width{100};
-  constexpr unsigned grid_height{100};
+  constexpr unsigned grid_width{150};
+  constexpr unsigned grid_height{150};
 
   sf::RenderWindow window(sf::VideoMode({grid_width, grid_height}), "FloodSim");
 
   window.setFramerateLimit(60);
 
   FloodSim fsim(grid_width, grid_height);
-  fsim.place_generator(0, 0, 1.0);
+  fsim.place_generator(0, 0, 100.0);
 
-  fsim.set_flood_value(25, 35, 100000);
-
-  for (int i; i < 50; i++)
-    fsim.place_generator(20, i, 1.0);
+  for (int i{0}; i < 50; i += 2)
+    fsim.place_void(20, i);
 
   sf::Texture texture(sf::Vector2u{grid_width, grid_height});
   sf::Sprite sprite(texture);
 
-  int ticks{0};
+  int ticks_per_frame{20};
   while (window.isOpen()) {
     while (const std::optional event = window.pollEvent()) {
       if (event->is<sf::Event::Closed>()) {
@@ -31,8 +29,9 @@ int main() {
       }
     }
 
-    ticks++;
-    fsim.tick();
+    for (int i{0}; i < ticks_per_frame; i++) {
+      fsim.tick();
+    }
 
     texture.update(fsim.pixels.data());
 
