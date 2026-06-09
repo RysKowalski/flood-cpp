@@ -33,7 +33,7 @@ int main() {
       fsim.tick();
     }
 
-    texture.update(fsim.pixels.data());
+    texture.update(fsim.get_pixels().data());
 
     window.clear();
     window.draw(sprite);

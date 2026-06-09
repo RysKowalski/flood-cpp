@@ -106,6 +106,15 @@ void FloodSim::process_special_cell(int x, int y) {
   }
 }
 
+std::vector<std::uint8_t> FloodSim::get_pixels() {
+  for (int x = 0; x < width; ++x) {
+    for (int y = 0; y < height; ++y) {
+      update_pixel(x, y);
+    }
+  }
+  return pixels;
+}
+
 void FloodSim::update_pixel(int x, int y) {
   const std::size_t i = (y * width + x) * 4;
 

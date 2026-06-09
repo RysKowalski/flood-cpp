@@ -7,7 +7,7 @@ class FloodSim {
 public:
   FloodSim(int width, int height);
   void tick();
-  std::vector<std::uint8_t> pixels;
+  std::vector<std::uint8_t> get_pixels();
 
   void place_wall(int x, int y);
   void place_generator(int x, int y, double power);
@@ -22,6 +22,7 @@ private:
   Grid current;
   Grid next;
   std::vector<GeneratorData> generatorData;
+  std::vector<std::uint8_t> pixels;
 
   void flood_cell(int x, int y);
   void process_special_cell(int x, int y);
