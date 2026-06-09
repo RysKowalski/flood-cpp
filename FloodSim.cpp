@@ -1,6 +1,8 @@
 #include "FloodSim.hpp"
 #include "Grid.hpp"
 #include <array>
+#include <thread>
+#include <vector>
 
 FloodSim::FloodSim(const int width, const int height)
     : width(width), height(height), current(width, height), next(width, height),
@@ -8,29 +10,73 @@ FloodSim::FloodSim(const int width, const int height)
              static_cast<std::size_t>(height) * 4) {}
 
 void FloodSim::tick() {
-
   next.clear();
 
-  for (int x = 0; x < width; ++x) {
-    for (int y = 0; y < height; ++y) {
-      process_cell(x, y);
+  const unsigned thread_count{std::thread::hardware_concurrency()};
+  std::vector<std::thread> threads;
+
+  auto worker = [this](int start_x, int end_x) {
+    for (int x = start_x; x < end_x; ++x) {
+      for (int y = 0; y < height; ++y) {
+        process_cell(x, y);
+      }
     }
+  };
+
+  const int chunk = width / thread_count;
+
+  for (unsigned i = 0; i < thread_count; ++i) {
+    const int start = i * chunk;
+    const int end = (i == thread_count - 1) ? width : start + chunk;
+
+    threads.emplace_back(worker, start, end);
+  }
+
+  for (auto &t : threads) {
+    t.join();
   }
 
   for (int x = 0; x < width; ++x) {
     for (int y = 0; y < height; ++y) {
       process_special_cell(x, y);
       current.at(x, y).value += next.at(x, y).value;
+      update_pixel(x, y);
     }
   }
-
-  update_pixels();
 }
 
 void FloodSim::process_cell(int x, int y) {
-  if (floodable(x, y)) {
-    flood_cell(x, y);
+  if (!floodable(x, y)) {
+    return;
   }
+
+  constexpr double k = 0.1;
+
+  const double center = current.at(x, y).value;
+
+  double sum = 0.0;
+  int count = 0;
+
+  constexpr std::array<std::pair<int, int>, 4> dirs{{
+      {-1, 0},
+      {1, 0},
+      {0, -1},
+      {0, 1},
+  }};
+
+  for (const auto &[dx, dy] : dirs) {
+    const int nx = x + dx;
+    const int ny = y + dy;
+
+    if (!floodable(nx, ny)) {
+      continue;
+    }
+
+    sum += current.at(nx, ny).value;
+    ++count;
+  }
+
+  next.at(x, y).value = k * (sum - count * center);
 }
 
 bool FloodSim::floodable(int x, int y) const {
@@ -57,46 +103,6 @@ void FloodSim::process_special_cell(int x, int y) {
 
   default: {
   }
-  }
-}
-
-void FloodSim::flood_cell(int x, int y) {
-  constexpr double k{0.1};
-
-  constexpr std::array<std::pair<int, int>, 4> directions{{
-      {-1, 0},
-      {1, 0},
-      {0, -1},
-      {0, 1},
-  }};
-
-  const double c_value = current.at(x, y).value;
-  if (c_value <= 0.0) {
-    return;
-  }
-
-  for (const auto &[dx, dy] : directions) {
-    const int nx = x + dx;
-    const int ny = y + dy;
-
-    if (!floodable(nx, ny)) {
-      continue;
-    }
-
-    const double n_value = current.at(nx, ny).value;
-
-    const double flow = k * (n_value - c_value);
-
-    next.at(x, y).value += flow;
-    next.at(nx, ny).value -= flow;
-  }
-}
-
-void FloodSim::update_pixels() {
-  for (int x{0}; x < width; x++) {
-    for (int y{0}; y < height; y++) {
-      update_pixel(x, y);
-    }
   }
 }
 
