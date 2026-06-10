@@ -5,8 +5,8 @@
 #include "FloodSim.hpp"
 
 int main() {
-  constexpr unsigned grid_width{1500};
-  constexpr unsigned grid_height{1500};
+  constexpr unsigned grid_width{150};
+  constexpr unsigned grid_height{150};
 
   sf::RenderWindow window(sf::VideoMode({grid_width, grid_height}), "FloodSim");
 
@@ -21,7 +21,7 @@ int main() {
   sf::Texture texture(sf::Vector2u{grid_width, grid_height});
   sf::Sprite sprite(texture);
 
-  int ticks_per_frame{8};
+  int ticks_per_frame{4};
   while (window.isOpen()) {
     while (const std::optional event = window.pollEvent()) {
       if (event->is<sf::Event::Closed>()) {

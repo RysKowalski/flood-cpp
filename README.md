@@ -1,7 +1,9 @@
 # TODO
 
-- required
+- done
   - multithreading for simulation
+
+- required
   - loading from mindustry's .msav file
   - pausing/resuming simulation
   - changing simulation tick count per ui tick
