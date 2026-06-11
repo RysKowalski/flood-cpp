@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Grid.hpp"
+#include <cstdint>
 #include <span>
 #include <string>
 
