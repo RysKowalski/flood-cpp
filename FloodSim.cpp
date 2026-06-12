@@ -1,5 +1,6 @@
 #include "FloodSim.hpp"
 #include "Grid.hpp"
+#include "MindustryLoader.hpp"
 #include <array>
 #include <thread>
 #include <vector>
@@ -10,6 +11,10 @@ FloodSim::FloodSim(const int width, const int height)
              static_cast<std::size_t>(height) * 4) {}
 
 void FloodSim::tick() {
+  MindustryLoader loader;
+  loader.load_map("perf.data");
+  
+  
   next.clear();
 
   const unsigned thread_count{std::thread::hardware_concurrency()};

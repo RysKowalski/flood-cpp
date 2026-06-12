@@ -4,8 +4,32 @@
 #include <span>
 #include <stdexcept>
 #include <vector>
+#include <fstream>
+#include <algorithm>
+#include <iterator>
+#include <iostream>
 
 #include <zlib.h>
+
+
+#include <fstream>
+
+std::vector<std::uint8_t> readFile(const std::string filename)
+{
+    // open the file:
+    std::streampos fileSize;
+    std::ifstream file(filename, std::ios::binary);
+
+    // get its size:
+    file.seekg(0, std::ios::end);
+    fileSize = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    // read the data:
+    std::vector<std::uint8_t> fileData(fileSize);
+    file.read((char*) &fileData[0], fileSize);
+    return fileData;
+}
 
 std::vector<std::uint8_t>
 decompress_zlib(const std::vector<std::uint8_t> &compressed) {
@@ -81,4 +105,10 @@ private:
   std::span<const std::uint8_t> data_;
 };
 
-Grid MindustryLoader::load_map(const std::string &path) { return Grid(5, 5); }
+Grid MindustryLoader::load_map(const std::string &path) {
+
+  std::vector<std::uint8_t> raw = readFile(path);
+  std::vector<std::uint8_t> data = decompress_zlib(raw);
+  std::cout << sizeof(raw) << " " << sizeof(data) << std::endl;
+
+  return Grid(5, 5); }
