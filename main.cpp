@@ -8,12 +8,14 @@ int main() {
   constexpr unsigned grid_width{150};
   constexpr unsigned grid_height{150};
 
+
   sf::RenderWindow window(sf::VideoMode({grid_width, grid_height}), "FloodSim");
 
   window.setFramerateLimit(0);
 
   FloodSim fsim(grid_width, grid_height);
   fsim.place_generator(0, 0, 1000.0);
+  
 
   for (int i{0}; i < 50; i += 2)
     fsim.place_void(20, i);
