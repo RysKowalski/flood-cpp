@@ -1,20 +1,15 @@
 #include "FloodSim.hpp"
 #include "Grid.hpp"
-#include "MindustryLoader.hpp"
 #include <array>
+#include <cstddef>
 #include <thread>
 #include <vector>
 
-FloodSim::FloodSim(const int width, const int height)
-    : width(width), height(height), current(width, height), next(width, height),
-      pixels(static_cast<std::size_t>(width) *
-             static_cast<std::size_t>(height) * 4) {}
+FloodSim::FloodSim(const std::size_t width, const std::size_t height, Grid map)
+    : width(width), height(height), current(map), next(map),
+      pixels(width * height * 4) {}
 
 void FloodSim::tick() {
-  MindustryLoader loader;
-  loader.load_map("perf.data");
-  
-  
   next.clear();
 
   const unsigned thread_count{std::thread::hardware_concurrency()};
@@ -97,7 +92,7 @@ void FloodSim::process_special_cell(int x, int y) {
   Cell &cell = current.at(x, y);
   switch (cell.type) {
   case CellType::GENERATOR: {
-    next.at(x, y).value += generatorData[cell.generator_index].power;
+    next.at(x, y).value += 30;
     break;
   }
 
@@ -200,10 +195,6 @@ void FloodSim::place_wall(int x, int y) {
 void FloodSim::place_generator(int x, int y, double power) {
   Cell &cell = current.at(x, y);
   cell.type = CellType::GENERATOR;
-  GeneratorData data;
-  data.power = power;
-  cell.generator_index = static_cast<std::uint32_t>(generatorData.size());
-  generatorData.push_back(data);
 }
 
 void FloodSim::place_nothing(int x, int y) {

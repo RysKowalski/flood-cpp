@@ -1,11 +1,12 @@
 #pragma once
 
 #include "Grid.hpp"
+#include <cstddef>
 #include <cstdint>
 
 class FloodSim {
 public:
-  FloodSim(int width, int height);
+  FloodSim(const std::size_t width, const std::size_t height, Grid map);
   void tick();
   std::vector<std::uint8_t> get_pixels();
 
@@ -17,11 +18,10 @@ public:
   void change_flood_value(int x, int y, double difference);
 
 private:
-  int width;
-  int height;
+  std::size_t width;
+  std::size_t height;
   Grid current;
   Grid next;
-  std::vector<GeneratorData> generatorData;
   std::vector<std::uint8_t> pixels;
 
   void flood_cell(int x, int y);

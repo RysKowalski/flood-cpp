@@ -1,26 +1,28 @@
 #include <SFML/Graphics.hpp>
 
+#include <cstddef>
 #include <vector>
 
 #include "FloodSim.hpp"
+#include "MindustryLoader.hpp"
 
 int main() {
-  constexpr unsigned grid_width{150};
-  constexpr unsigned grid_height{150};
+  MindustryLoader loader;
+  Grid map{loader.load_map("mindustry-map.msav")};
+  const std::size_t grid_width{map.width()};
+  const std::size_t grid_height{map.height()};
 
-
-  sf::RenderWindow window(sf::VideoMode({grid_width, grid_height}), "FloodSim");
+  sf::RenderWindow window(
+      sf::VideoMode(sf::Vector2u{static_cast<unsigned int>(grid_width),
+                                 static_cast<unsigned int>(grid_height)}),
+      "FloodSim");
 
   window.setFramerateLimit(0);
 
-  FloodSim fsim(grid_width, grid_height);
-  fsim.place_generator(0, 0, 1000.0);
-  
+  FloodSim fsim(grid_width, grid_height, map);
 
-  for (int i{0}; i < 50; i += 2)
-    fsim.place_void(20, i);
-
-  sf::Texture texture(sf::Vector2u{grid_width, grid_height});
+  sf::Texture texture(sf::Vector2u{static_cast<unsigned int>(grid_width),
+                                   static_cast<unsigned int>(grid_height)});
   sf::Sprite sprite(texture);
 
   int ticks_per_frame{4};
