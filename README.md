@@ -3,9 +3,9 @@
 - done
   - multithreading for simulation
   - loading from mindustry's .msav file
+  - pausing/resuming simulation
 
 - required
-  - pausing/resuming simulation
   - changing simulation tick count per ui tick
 
 - additional
