@@ -40,7 +40,6 @@ void FloodSim::tick() {
     for (int y = 0; y < height; ++y) {
       process_special_cell(x, y);
       current.at(x, y).value += next.at(x, y).value;
-      update_pixel(x, y);
     }
   }
 }
