@@ -7,11 +7,14 @@
   - changing simulation tick count per ui tick
 
   - displaying if paused and tick count per ui tick
+  - zoom
+    - keeping aspect ratio
+    - changing scale
+    - moving using wasd
 
 - required
 
 - additional
-  - zoom
   - generators upgrading
   - changing simulation settings while running
   - saving simulation state
