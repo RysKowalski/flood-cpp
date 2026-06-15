@@ -9,13 +9,14 @@
 #include "FloodSim.hpp"
 #include "MindustryLoader.hpp"
 
-sf::Text get_number_text(sf::Font &font, sf::Vector2f position) {
+sf::Text get_number_text(sf::Font &font, sf::Vector2f position,
+                         std::string default_text) {
   sf::Text text(font);
   text.setFillColor(sf::Color::White);
   text.setCharacterSize(15);
   text.setStyle(sf::Text::Bold);
   text.setPosition(position);
-  text.setString("1");
+  text.setString(default_text);
   return text;
 }
 
@@ -24,7 +25,7 @@ sf::Text get_paused_text(sf::Font &font) {
   text.setFillColor(sf::Color::Red);
   text.setCharacterSize(20);
   text.setStyle(sf::Text::Bold);
-  text.setPosition({0.f, 40.f});
+  text.setPosition({0.f, 62.f});
   text.setString("Paused!");
   return text;
 }
@@ -66,8 +67,11 @@ int main(int argc, char *argv[]) {
 
   sf::Font font("font.ttf");
   sf::Text paused_text = get_paused_text(font);
-  sf::Text ticks_text = get_number_text(font, {0.f, 0.f});
-  sf::Text skip_ticks_amount_text = get_number_text(font, {0.f, 16.f});
+  sf::Text ticks_text = get_number_text(font, {0.f, 0.f}, "1");
+  sf::Text skip_ticks_amount_text = get_number_text(font, {0.f, 16.f}, "1");
+  sf::Text k_text = get_number_text(font, {0.f, 30.f}, "k: 0.1");
+  sf::Text generator_power_text =
+      get_number_text(font, {0.f, 46.f}, "generator power: 0.1");
 
   sf::View view(sf::FloatRect({0.f, 0.f}, {static_cast<float>(grid_width),
                                            static_cast<float>(grid_height)}));
@@ -144,21 +148,46 @@ int main(int argc, char *argv[]) {
           }
         }
 
+        if (key == sf::Keyboard::Key::K) {
+          fsim.k += 0.01;
+          std::string s = "";
+          s.append("k: ").append(std::to_string(fsim.k));
+          k_text.setString(s);
+        }
+        if (key == sf::Keyboard::Key::J) {
+          fsim.k -= 0.01;
+          std::string s = "";
+          s.append("k: ").append(std::to_string(fsim.k));
+          k_text.setString(s);
+        }
+
+        if (key == sf::Keyboard::Key::Left) {
+          fsim.generatorPower -= 0.5;
+          std::string s = "";
+          s.append("generator power: ")
+              .append(std::to_string(fsim.generatorPower));
+          generator_power_text.setString(s);
+        }
+        if (key == sf::Keyboard::Key::Right) {
+          fsim.generatorPower += 0.5;
+          std::string s = "";
+          s.append("generator power: ")
+              .append(std::to_string(fsim.generatorPower));
+          generator_power_text.setString(s);
+        }
+
         if (key == sf::Keyboard::Key::W) {
           view.move({0.f, -10.f});
           window.setView(view);
         }
-
         if (key == sf::Keyboard::Key::S) {
           view.move({0.f, 10.f});
           window.setView(view);
         }
-
         if (key == sf::Keyboard::Key::A) {
           view.move({-10.f, 0.f});
           window.setView(view);
         }
-
         if (key == sf::Keyboard::Key::D) {
           view.move({10.f, 0.f});
           window.setView(view);
@@ -236,6 +265,8 @@ int main(int argc, char *argv[]) {
       window.draw(paused_text);
     window.draw(ticks_text);
     window.draw(skip_ticks_amount_text);
+    window.draw(k_text);
+    window.draw(generator_power_text);
     window.display();
   }
 }

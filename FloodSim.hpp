@@ -10,6 +10,9 @@ public:
   void tick();
   std::vector<std::uint8_t> get_pixels();
 
+  double k;
+  double generatorPower;
+
   void place_wall(int x, int y);
   void place_generator(int x, int y, double power);
   void place_nothing(int x, int y);

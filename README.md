@@ -12,12 +12,12 @@
     - changing scale
     - moving using wasd
   - cli arg -m <path to .msav>
+  - changing simulation settings while running
+    - K
+    - generator power
 
 - required
 
 - additional
-  - changing simulation settings while running
-    - K
-    - generator power
   - saving simulation state
   - editing simulation grid

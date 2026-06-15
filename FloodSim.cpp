@@ -7,7 +7,7 @@
 
 FloodSim::FloodSim(const std::size_t width, const std::size_t height, Grid map)
     : width(width), height(height), current(map), next(map),
-      pixels(width * height * 4) {}
+      pixels(width * height * 4), k(0.1), generatorPower(2) {}
 
 void FloodSim::tick() {
   next.clear();
@@ -49,8 +49,6 @@ void FloodSim::process_cell(int x, int y) {
     return;
   }
 
-  constexpr double k = 0.1;
-
   const double center = current.at(x, y).value;
 
   double sum = 0.0;
@@ -91,7 +89,7 @@ void FloodSim::process_special_cell(int x, int y) {
   Cell &cell = current.at(x, y);
   switch (cell.type) {
   case CellType::GENERATOR: {
-    next.at(x, y).value += 2;
+    next.at(x, y).value += generatorPower;
     break;
   }
 
