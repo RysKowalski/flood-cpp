@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 
 #include <cstddef>
+#include <iostream>
 #include <optional>
 #include <string>
 #include <vector>
@@ -28,8 +29,20 @@ sf::Text get_paused_text(sf::Font &font) {
   return text;
 }
 
-int main() {
-  MindustryLoader loader("mindustry-map.msav");
+std::string get_path(int argc, char *argv[]) {
+  for (int i = 1; i < argc; ++i) {
+    std::string arg = argv[i];
+
+    if (arg == "-m" && i + 1 < argc) {
+      return std::string(argv[i + 1]);
+    }
+  }
+  std::cerr << "Error: missing -m <path to .msav>\n";
+  std::exit(EXIT_FAILURE);
+}
+
+int main(int argc, char *argv[]) {
+  MindustryLoader loader(get_path(argc, argv));
   Grid map{loader.load_map()};
 
   const std::size_t grid_width = map.width();

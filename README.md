@@ -11,11 +11,11 @@
     - keeping aspect ratio
     - changing scale
     - moving using wasd
+  - cli arg -m <path to .msav>
 
 - required
 
 - additional
-  - cli arg -m <path to .msav>
   - changing simulation settings while running
     - K
     - generator power
