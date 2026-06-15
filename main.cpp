@@ -25,7 +25,7 @@ int main() {
                                    static_cast<unsigned int>(grid_height)});
   sf::Sprite sprite(texture);
 
-  int ticks_per_frame{4};
+  int ticks_per_frame{1};
   bool paused{false};
   while (window.isOpen()) {
     while (const std::optional event = window.pollEvent()) {
@@ -37,6 +37,14 @@ int main() {
         if (event->getIf<sf::Event::KeyPressed>()->code ==
             sf::Keyboard::Key::Space) {
           paused = !paused;
+        }
+        if (event->getIf<sf::Event::KeyPressed>()->code ==
+            sf::Keyboard::Key::Up) {
+          ticks_per_frame++;
+        }
+        if (event->getIf<sf::Event::KeyPressed>()->code ==
+            sf::Keyboard::Key::Down) {
+          ticks_per_frame--;
         }
       }
     }
