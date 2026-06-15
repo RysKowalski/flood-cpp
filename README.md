@@ -6,10 +6,11 @@
   - pausing/resuming simulation
   - changing simulation tick count per ui tick
 
+  - displaying if paused and tick count per ui tick
+
 - required
 
 - additional
-  - displaying if paused and tick count per ui tick
   - zoom
   - generators upgrading
   - changing simulation settings while running
