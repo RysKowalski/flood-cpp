@@ -15,7 +15,9 @@
 - required
 
 - additional
-  - generators upgrading
+  - cli arg -m <path to .msav>
   - changing simulation settings while running
+    - K
+    - generator power
   - saving simulation state
   - editing simulation grid
