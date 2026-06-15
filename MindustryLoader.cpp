@@ -1,9 +1,9 @@
 #include "MindustryLoader.hpp"
+#include "BinaryReader.hpp"
 #include "Grid.hpp"
 #include <cstdint>
 #include <fstream>
 #include <iostream>
-#include <span>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -55,63 +55,14 @@ decompress_zlib(const std::vector<std::uint8_t> &compressed) {
   }
 }
 
-class Reader {
-public:
-  explicit Reader(std::span<const std::uint8_t> data) : data_(data) {}
+MindustryLoader::MindustryLoader(const std::string &path)
+    : r(decompress_zlib(readFile(path))) {};
 
-  std::int16_t read_i16() {
-    std::int16_t value =
-        (static_cast<std::int16_t>(data_[pos_]) << 8) | data_[pos_ + 1];
+std::vector<std::uint8_t> MindustryLoader::read_file(const std::string &path) {
+  return decompress_zlib(readFile(path));
+}
 
-    pos_ += 2;
-    return value;
-  }
-  std::uint16_t read_u16() {
-    std::uint16_t value =
-        (static_cast<std::uint16_t>(data_[pos_]) << 8) | data_[pos_ + 1];
-
-    pos_ += 2;
-    return value;
-  }
-  std::uint8_t read_u8() {
-    std::uint8_t value = static_cast<std::uint8_t>(data_[pos_]);
-
-    pos_ += 1;
-    return value;
-  }
-  bool read_bool() { return read_u8() != 0; }
-  std::int32_t read_i32() {
-    std::int32_t value = (static_cast<std::int32_t>(data_[pos_]) << 24) |
-                         (data_[pos_ + 1] << 16) | (data_[pos_ + 2] << 8) |
-                         data_[pos_ + 3];
-
-    pos_ += 4;
-    return value;
-  }
-
-  std::span<const std::uint8_t> read_bytes(std::size_t n) {
-    auto bytes = data_.subspan(pos_, n);
-    pos_ += n;
-    return bytes;
-  }
-
-  void skip(std::size_t n) { pos_ += n; };
-
-  void skip_chunk() {
-    std::int32_t length = read_i32();
-    skip(length);
-  }
-
-private:
-  std::size_t pos_ = 0;
-  std::span<const std::uint8_t> data_;
-};
-
-Grid MindustryLoader::load_map(const std::string &path) {
-  std::vector<std::uint8_t> raw = readFile(path);
-  std::vector<std::uint8_t> data = decompress_zlib(raw);
-  Reader r(data);
-
+Grid MindustryLoader::load_map() {
   std::cout << "HEADER: ";
   std::cout << static_cast<char>(r.read_u8());
   std::cout << static_cast<char>(r.read_u8());
@@ -126,41 +77,53 @@ Grid MindustryLoader::load_map(const std::string &path) {
   r.skip_chunk(); // content
   r.skip_chunk(); // IDK
 
-  // MAP CHUNK
+  Grid grid = read_map_chunk();
+  int total_tiles = grid.width() * grid.height();
+
+  skip_terrain(total_tiles);
+
+  read_blocks(grid);
+
+  return grid;
+}
+
+Grid MindustryLoader::read_map_chunk() {
   std::int32_t map_size = r.read_i32();
-  Reader map_reader(r.read_bytes(map_size));
-  std::uint16_t width = map_reader.read_u16();
-  std::uint16_t height = map_reader.read_u16();
+
+  std::uint16_t width = r.read_u16();
+  std::uint16_t height = r.read_u16();
   std::cout << "width: " << width << " height: " << height << "\n";
 
-  Grid grid(width, height);
-  int total_tiles = width * height;
+  return Grid(width, height);
+}
 
-  // TERRAIN
-
+void MindustryLoader::skip_terrain(int total_tiles) {
   int terrain_files = 0;
   while (terrain_files < total_tiles) {
 
-    std::int16_t block_id = map_reader.read_i16();
-    std::int16_t overlay_id = map_reader.read_i16();
-    std::uint8_t run = map_reader.read_u8();
+    std::int16_t block_id = r.read_i16();
+    std::int16_t overlay_id = r.read_i16();
+    std::uint8_t run = r.read_u8();
 
     terrain_files += run + 1;
   }
+}
 
-  // BLOCKS
+void MindustryLoader::read_blocks(Grid &grid) {
+  int total_tiles = grid.width() * grid.height();
+
   int tile_index = 0;
   while (tile_index < total_tiles) {
 
-    std::int16_t block_id = map_reader.read_i16();
-    std::uint8_t flags = map_reader.read_u8();
+    std::int16_t block_id = r.read_i16();
+    std::uint8_t flags = r.read_u8();
 
     bool has_entity = (flags & 1) != 0;
     bool has_data = (flags & 4) != 0;
 
     // SIMPLE RLE BLOCK
     if (not has_entity and not has_data) {
-      std::uint8_t run = map_reader.read_u8();
+      std::uint8_t run = r.read_u8();
       for (int i = 0; i < run + 1; i++) {
         place_block(grid, tile_index, block_id);
         tile_index++;
@@ -170,20 +133,18 @@ Grid MindustryLoader::load_map(const std::string &path) {
 
     // OPTIONAL TILE DATA
     if (has_data)
-      map_reader.skip(7);
+      r.skip(7);
 
     // OPTIONAL ENTITY DATA
     if (has_entity) {
-      bool is_center = map_reader.read_bool();
+      bool is_center = r.read_bool();
       if (is_center)
-        map_reader.skip_chunk();
+        r.skip_chunk();
     }
 
     place_block(grid, tile_index, block_id);
     tile_index++;
   }
-
-  return grid;
 }
 
 inline CellType MindustryLoader::classify_block(std::int16_t block_id) {

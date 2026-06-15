@@ -1,4 +1,4 @@
-g++ main.cpp FloodSim.cpp Grid.cpp MindustryLoader.cpp \
+g++ main.cpp FloodSim.cpp Grid.cpp MindustryLoader.cpp BinaryReader.cpp \
   -std=c++23 \
   -O0 -g \
   -fsanitize=address,undefined \

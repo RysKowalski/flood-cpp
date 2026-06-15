@@ -7,8 +7,8 @@
 #include "MindustryLoader.hpp"
 
 int main() {
-  MindustryLoader loader;
-  Grid map{loader.load_map("mindustry-map.msav")};
+  MindustryLoader loader("mindustry-map.msav");
+  Grid map{loader.load_map()};
   const std::size_t grid_width{map.width()};
   const std::size_t grid_height{map.height()};
 
