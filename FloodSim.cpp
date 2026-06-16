@@ -11,6 +11,10 @@ FloodSim::FloodSim(const std::size_t width, const std::size_t height, Grid map)
       start_barrier(std::thread::hardware_concurrency() + 1),
       end_barrier(std::thread::hardware_concurrency() + 1) {
 
+  for (int i = 0; i < width * height * 4; i++) {
+    pixels[i] = 255;
+  }
+
   const unsigned count = std::thread::hardware_concurrency();
   const int chunk = width / count;
 
@@ -143,65 +147,55 @@ void FloodSim::update_pixel(int x, int y) {
     double &val = current.at(x, y).value;
 
     if (val < 1) {
-      pixels[i + 0] = 0;   // R
-      pixels[i + 1] = 0;   // G
-      pixels[i + 2] = 0;   // B
-      pixels[i + 3] = 255; // A
+      pixels[i + 0] = 0; // R
+      pixels[i + 1] = 0; // G
+      pixels[i + 2] = 0; // B
       return;
     } else if (val < 13) {
       pixels[i + 0] = 177; // R
       pixels[i + 1] = 198; // G
       pixels[i + 2] = 209; // B
-      pixels[i + 3] = 255; // A
       return;
     } else if (val < 30) {
       pixels[i + 0] = 138; // R
       pixels[i + 1] = 163; // G
       pixels[i + 2] = 244; // B
-      pixels[i + 3] = 255; // A
       return;
     } else if (val < 90) {
       pixels[i + 0] = 128; // R
       pixels[i + 1] = 117; // G
       pixels[i + 2] = 165; // B
-      pixels[i + 3] = 255; // A
       return;
     } else if (val < 180) {
       pixels[i + 0] = 239; // R
       pixels[i + 1] = 201; // G
       pixels[i + 2] = 152; // B
-      pixels[i + 3] = 255; // A
       return;
     } else if (val < 300) {
       pixels[i + 0] = 203; // R
       pixels[i + 1] = 216; // G
       pixels[i + 2] = 126; // B
-      pixels[i + 3] = 255; // A
       return;
     } else {
       pixels[i + 0] = 80;  // R
       pixels[i + 1] = 71;  // G
       pixels[i + 2] = 123; // B
-      pixels[i + 3] = 255; // A
       return;
     }
   } else if (ctype == CellType::WALL) {
     pixels[i + 0] = 255; // R
     pixels[i + 1] = 255; // G
     pixels[i + 2] = 0;   // B
-    pixels[i + 3] = 255; // A
     return;
   } else if (ctype == CellType::GENERATOR) {
     pixels[i + 0] = 255; // R
     pixels[i + 1] = 255; // G
     pixels[i + 2] = 255; // B
-    pixels[i + 3] = 255; // A
     return;
   } else if (ctype == CellType::VOID) {
     pixels[i + 0] = 255; // R
     pixels[i + 1] = 0;   // G
     pixels[i + 2] = 0;   // B
-    pixels[i + 3] = 255; // A
     return;
   }
 }

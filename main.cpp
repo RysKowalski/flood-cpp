@@ -9,6 +9,12 @@
 #include "FloodSim.hpp"
 #include "MindustryLoader.hpp"
 
+std::string round_double(double val, int places) {
+  std::ostringstream ss;
+  ss << std::fixed << std::setprecision(places) << val;
+  return ss.str();
+}
+
 sf::Text get_number_text(sf::Font &font, sf::Vector2f position,
                          std::string default_text) {
   sf::Text text(font);
@@ -71,7 +77,7 @@ int main(int argc, char *argv[]) {
   sf::Text skip_ticks_amount_text = get_number_text(font, {0.f, 16.f}, "1");
   sf::Text k_text = get_number_text(font, {0.f, 30.f}, "k: 0.1");
   sf::Text generator_power_text =
-      get_number_text(font, {0.f, 46.f}, "generator power: 0.1");
+      get_number_text(font, {0.f, 46.f}, "generator power: 2.0");
 
   sf::View view(sf::FloatRect({0.f, 0.f}, {static_cast<float>(grid_width),
                                            static_cast<float>(grid_height)}));
@@ -149,15 +155,15 @@ int main(int argc, char *argv[]) {
         }
 
         if (key == sf::Keyboard::Key::K) {
-          fsim.k += 0.01;
+          fsim.k += 0.005;
           std::string s = "";
-          s.append("k: ").append(std::to_string(fsim.k));
+          s.append("k: ").append(round_double(fsim.k, 3));
           k_text.setString(s);
         }
         if (key == sf::Keyboard::Key::J) {
-          fsim.k -= 0.01;
+          fsim.k -= 0.005;
           std::string s = "";
-          s.append("k: ").append(std::to_string(fsim.k));
+          s.append("k: ").append(round_double(fsim.k, 3));
           k_text.setString(s);
         }
 
@@ -165,14 +171,14 @@ int main(int argc, char *argv[]) {
           fsim.generatorPower -= 0.5;
           std::string s = "";
           s.append("generator power: ")
-              .append(std::to_string(fsim.generatorPower));
+              .append(round_double(fsim.generatorPower, 1));
           generator_power_text.setString(s);
         }
         if (key == sf::Keyboard::Key::Right) {
           fsim.generatorPower += 0.5;
           std::string s = "";
           s.append("generator power: ")
-              .append(std::to_string(fsim.generatorPower));
+              .append(round_double(fsim.generatorPower, 1));
           generator_power_text.setString(s);
         }
 
