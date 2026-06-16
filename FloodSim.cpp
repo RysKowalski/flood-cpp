@@ -7,40 +7,61 @@
 
 FloodSim::FloodSim(const std::size_t width, const std::size_t height, Grid map)
     : width(width), height(height), current(map), next(map),
-      pixels(width * height * 4), k(0.1), generatorPower(2) {}
+      pixels(width * height * 4), k(0.1), generatorPower(2),
+      start_barrier(std::thread::hardware_concurrency() + 1),
+      end_barrier(std::thread::hardware_concurrency() + 1) {
+
+  const unsigned count = std::thread::hardware_concurrency();
+  const int chunk = width / count;
+
+  for (unsigned i = 0; i < count; ++i) {
+    const int start = i * chunk;
+
+    const int end = (i == count - 1) ? width : start + chunk;
+
+    workers.emplace_back(&FloodSim::worker, this, start, end);
+  }
+}
+
+FloodSim::~FloodSim() {
+  running = false;
+
+  start_barrier.arrive_and_wait();
+
+  for (auto &worker : workers) {
+    worker.join();
+  }
+}
 
 void FloodSim::tick() {
   next.clear();
 
-  const unsigned thread_count{std::thread::hardware_concurrency()};
-  std::vector<std::thread> threads;
-
-  auto worker = [this](int start_x, int end_x) {
-    for (int x = start_x; x < end_x; ++x) {
-      for (int y = 0; y < height; ++y) {
-        process_cell(x, y);
-      }
-    }
-  };
-
-  const int chunk = width / thread_count;
-
-  for (unsigned i = 0; i < thread_count; ++i) {
-    const int start = i * chunk;
-    const int end = (i == thread_count - 1) ? width : start + chunk;
-
-    threads.emplace_back(worker, start, end);
-  }
-
-  for (auto &t : threads) {
-    t.join();
-  }
+  start_barrier.arrive_and_wait();
+  end_barrier.arrive_and_wait();
 
   for (int x = 0; x < width; ++x) {
     for (int y = 0; y < height; ++y) {
-      process_special_cell(x, y);
       current.at(x, y).value += next.at(x, y).value;
     }
+  }
+}
+
+void FloodSim::worker(int start_x, int end_x) {
+  while (true) {
+    start_barrier.arrive_and_wait();
+
+    if (!running) {
+      break;
+    }
+
+    for (int x = start_x; x < end_x; ++x) {
+      for (int y = 0; y < height; ++y) {
+        process_cell(x, y);
+        process_special_cell(x, y);
+      }
+    }
+
+    end_barrier.arrive_and_wait();
   }
 }
 

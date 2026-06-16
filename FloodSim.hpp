@@ -1,12 +1,15 @@
 #pragma once
 
 #include "Grid.hpp"
+#include <barrier>
 #include <cstddef>
 #include <cstdint>
+#include <thread>
 
 class FloodSim {
 public:
   FloodSim(const std::size_t width, const std::size_t height, Grid map);
+  ~FloodSim();
   void tick();
   std::vector<std::uint8_t> get_pixels();
 
@@ -26,6 +29,12 @@ private:
   Grid current;
   Grid next;
   std::vector<std::uint8_t> pixels;
+
+  void worker(int start_x, int end_x);
+  bool running{true};
+  std::barrier<> start_barrier;
+  std::barrier<> end_barrier;
+  std::vector<std::thread> workers;
 
   void flood_cell(int x, int y);
   void process_special_cell(int x, int y);
