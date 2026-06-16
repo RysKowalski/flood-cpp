@@ -9,6 +9,8 @@
 #include "FloodSim.hpp"
 #include "MindustryLoader.hpp"
 
+struct CLIOptions {};
+
 std::string round_double(double val, int places) {
   std::ostringstream ss;
   ss << std::fixed << std::setprecision(places) << val;

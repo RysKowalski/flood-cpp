@@ -2,6 +2,7 @@
 #include "Grid.hpp"
 #include <array>
 #include <cstddef>
+#include <string>
 #include <thread>
 #include <vector>
 
@@ -224,3 +225,5 @@ void FloodSim::set_flood_value(int x, int y, double value) {
 void FloodSim::change_flood_value(int x, int y, double difference) {
   current.at(x, y).value += difference;
 }
+
+void FloodSim::save(std::string &path) { current.save(path); }

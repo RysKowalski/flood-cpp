@@ -4,6 +4,7 @@
 #include <barrier>
 #include <cstddef>
 #include <cstdint>
+#include <string>
 #include <thread>
 
 class FloodSim {
@@ -22,6 +23,8 @@ public:
   void place_void(int x, int y);
   void set_flood_value(int x, int y, double value);
   void change_flood_value(int x, int y, double difference);
+
+  void save(std::string &path);
 
 private:
   std::size_t width;

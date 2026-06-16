@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <string>
 #include <vector>
 
 enum class CellType { NOTHING, WALL, GENERATOR, VOID };
@@ -20,6 +21,9 @@ public:
 
   std::size_t width() const;
   std::size_t height() const;
+
+  void save(const std::string &path) const;
+  static Grid load(const std::string &path);
 
 private:
   std::size_t width_;
